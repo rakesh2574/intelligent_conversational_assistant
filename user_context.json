@@ -1,0 +1,32 @@
+{
+    "default_user": {
+        "Connected Person Payments": {
+            "responses": {
+                "cp_1": "No",
+                "cp_4": "I am not sure",
+                "cp_5": "Yes",
+                "cp_6": "Yes - New payment",
+                "cp_7": "Yes",
+                "cp_8": "Yes",
+                "cp_9": "around 3000 AED"
+            },
+            "timestamp": "2025-10-03 23:34:49",
+            "completed": true
+        },
+        "Small Business Relief - SBR Filing": {
+            "responses": {
+                "sbr_3": "No",
+                "sbr_5": "No",
+                "sbr_7": "No",
+                "sbr_8": "Profit < 375K",
+                "sbr_9": "No",
+                "sbr_10": "Yes",
+                "sbr_11": "Yes",
+                "sbr_12": "Yes",
+                "sbr_13": "Yes"
+            },
+            "timestamp": "2025-10-04 01:00:01",
+            "completed": true
+        }
+    }
+}

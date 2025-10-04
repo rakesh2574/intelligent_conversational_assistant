@@ -1,0 +1,1128 @@
+{
+    "Small Business Relief - SBR Filing": {
+        "description": "Assessment for Small Business Relief Eligibility (AED 3 million threshold)",
+        "methodology": "\nCALCULATION METHODOLOGY:\n1. Gross Receipts Basis (NOT net income or profits)\n2. Include: Regular revenue + Asset sales + Out-of-scope/Exempt VAT transactions + Dividends from shareholdings\n3. Important: Revenue from VAT returns must match; if not, add exempt/out-of-scope amounts\n4. All bank receipts must align with reported revenue\n5. Threshold: AED 3,000,000 total gross receipts\n        ",
+        "questions": [
+            {
+                "id": "sbr_1",
+                "question": "What is your total revenue/turnover for the tax period (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "sbr_2",
+                "question": "Do you have any asset sales in the tax period? If yes, what is the sale amount (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "sbr_3",
+                "question": "Does your revenue figure match the VAT return revenues?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Not VAT Registered"
+                ]
+            },
+            {
+                "id": "sbr_4",
+                "question": "If revenue doesn't match VAT, what is the total amount of exempt/out-of-scope transactions (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "sbr_5",
+                "question": "Is the company a shareholder in another company locally or internationally?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "sbr_6",
+                "question": "Did you receive any dividends? If yes, what is the amount (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "sbr_7",
+                "question": "Do your receipts in all bank accounts align with the reported revenue?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Not Sure"
+                ]
+            },
+            {
+                "id": "sbr_8",
+                "question": "Did you make profits in excess of AED 375,000, or are you in losses?",
+                "type": "select",
+                "options": [
+                    "Profit > 375K",
+                    "Profit < 375K",
+                    "Losses"
+                ]
+            },
+            {
+                "id": "sbr_9",
+                "question": "If you are in losses, do you plan to carry forward tax losses for future tax benefits?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "N/A"
+                ]
+            },
+            {
+                "id": "sbr_10",
+                "question": "Is the company part of any unincorporated partnerships?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "sbr_11",
+                "question": "Is the company a tax resident in another country?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "sbr_12",
+                "question": "Does the company have any property, intangible assets, or financial assets purchased before the corporate tax period?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "sbr_13",
+                "question": "Do you have any assets valued using fair value method in financial statements?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            }
+        ]
+    },
+    "Transitional Tax Benefits - Property": {
+        "description": "Transitional relief calculations for real estate assets",
+        "methodology": "\nCALCULATION METHODOLOGY:\n1. WITH TITLE DEED: Straightforward calculation - compare market value method vs time apportionment\n2. OFF-PLAN PROPERTY: \n   - Check control: If user has control (can use/lease/sell), capitalize under IAS 40\n   - Oqood (approved contract) = control if economic rewards can be achieved through sale\n3. CALCULATIONS REQUIRED:\n   - Market Value Method: Use FMV on first day of tax period\n   - Time Apportionment Method: (Days held pre-tax / Total days held) \u00d7 Gain\n4. Note: Tax savings for unsold units cannot use time apportionment (only on sale date)\n5. Provide comparison and recommend best method\n        ",
+        "questions": [
+            {
+                "id": "tp_1",
+                "question": "Do you own property under the company name purchased before your first corporate tax period?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "tp_2",
+                "question": "When did you purchase? (Date of Oqood / Property Title Deed)",
+                "type": "date"
+            },
+            {
+                "id": "tp_3",
+                "question": "Is the property ready or off-plan? If under construction, do you have title deed or direct access?",
+                "type": "select",
+                "options": [
+                    "Ready with Title Deed",
+                    "Off-plan with Oqood",
+                    "Off-plan no control",
+                    "Under Construction"
+                ]
+            },
+            {
+                "id": "tp_4",
+                "question": "Are you still holding the property, or has it been sold?",
+                "type": "select",
+                "options": [
+                    "Still Holding",
+                    "Sold"
+                ]
+            },
+            {
+                "id": "tp_5",
+                "question": "If sold, please provide the sale date and selling price (AED):",
+                "type": "text"
+            },
+            {
+                "id": "tp_6",
+                "question": "How was the property accounted for in the books?",
+                "type": "select",
+                "options": [
+                    "Historical Cost Method",
+                    "Fair Value Method (IAS 40)",
+                    "Inventory (IAS 2)"
+                ]
+            },
+            {
+                "id": "tp_7",
+                "question": "What was the market value of the property on the first day of the tax period (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tp_8",
+                "question": "Are you able to provide a valuation certificate at this value?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Can Obtain"
+                ]
+            },
+            {
+                "id": "tp_9",
+                "question": "What was the original purchase price including all directly attributable costs (registration, trustee fees, commissions) (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tp_10",
+                "question": "What's the selling price if the property is sold (AED)?",
+                "type": "number"
+            }
+        ]
+    },
+    "Transitional Tax Benefits - Intangible Assets": {
+        "description": "Transitional relief for intangible assets (same methodology as property, no control issues)",
+        "methodology": "\nCALCULATION METHODOLOGY:\nSame as property transitional rules EXCEPT control issue doesn't apply.\n1. Compare Market Value Method vs Time Apportionment Method\n2. Market Value Method: FMV on first day of tax period\n3. Time Apportionment: (Days held pre-tax / Total days held) \u00d7 Gain\n4. Recommend optimal method based on calculations\n        ",
+        "questions": [
+            {
+                "id": "tia_1",
+                "question": "Do you own intangible assets under company name purchased before first corporate tax period?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "tia_2",
+                "question": "If yes, provide the purchase date:",
+                "type": "date"
+            },
+            {
+                "id": "tia_3",
+                "question": "Are you still holding the intangible assets, or have they been sold?",
+                "type": "select",
+                "options": [
+                    "Still Holding",
+                    "Sold"
+                ]
+            },
+            {
+                "id": "tia_4",
+                "question": "If sold, provide the date:",
+                "type": "date"
+            },
+            {
+                "id": "tia_5",
+                "question": "How were intangible assets accounted for in the books?",
+                "type": "select",
+                "options": [
+                    "Historical Cost Method",
+                    "Fair Value Method (IAS 40)"
+                ]
+            },
+            {
+                "id": "tia_6",
+                "question": "What was the market value of intangible assets on first day of tax period (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tia_7",
+                "question": "Are you able to reliably measure the value or provide a valuation certificate?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Can Obtain"
+                ]
+            },
+            {
+                "id": "tia_8",
+                "question": "What was the original purchase price including all directly attributable costs (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tia_9",
+                "question": "What's the selling price if sold (AED)?",
+                "type": "number"
+            }
+        ]
+    },
+    "Transitional Tax Benefits - Financial Assets": {
+        "description": "Transitional relief for financial assets",
+        "methodology": "\nCALCULATION METHODOLOGY:\nSame as Intangible Assets - control issues don't apply.\n1. Compare Market Value Method vs Time Apportionment Method\n2. Calculate tax savings under both methods\n3. Provide recommendation on optimal method\n        ",
+        "questions": [
+            {
+                "id": "tfa_1",
+                "question": "Do you own financial assets under company name purchased before first corporate tax period?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "tfa_2",
+                "question": "If yes, provide the date:",
+                "type": "date"
+            },
+            {
+                "id": "tfa_3",
+                "question": "Are you still holding financial assets, or have they been sold?",
+                "type": "select",
+                "options": [
+                    "Still Holding",
+                    "Sold"
+                ]
+            },
+            {
+                "id": "tfa_4",
+                "question": "If sold, provide the date:",
+                "type": "date"
+            },
+            {
+                "id": "tfa_5",
+                "question": "How were financial assets accounted for in the books?",
+                "type": "select",
+                "options": [
+                    "Historical Cost Method",
+                    "Fair Value Method (IAS 40)"
+                ]
+            },
+            {
+                "id": "tfa_6",
+                "question": "What was the market value of financial assets on first day of tax period (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tfa_7",
+                "question": "Are you able to reliably measure the value or provide a valuation certificate?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Can Obtain"
+                ]
+            },
+            {
+                "id": "tfa_8",
+                "question": "What was the original purchase price including all directly attributable costs (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "tfa_9",
+                "question": "What's the selling price if the asset is sold (AED)?",
+                "type": "number"
+            }
+        ]
+    },
+    "Connected Person Payments": {
+        "description": "Payments to owners, shareholders, directors, relatives",
+        "methodology": "\nCALCULATION METHODOLOGY:\n1. Identify ALL payments to connected parties (shareholders, directors, officers, partners, relatives)\n2. Calculate EXCESS AMOUNT: Actual payment - Market rate (arm's length)\n3. IMPLICATIONS:\n   - Excess amounts are NOT tax deductible\n   - May trigger transfer pricing documentation requirements\n   - Subject to additional scrutiny by FTA\n4. ADDITIONAL REQUIREMENTS:\n   - If total payments > AED 500,000: Enhanced disclosure required\n   - Need contracts/agreements supporting payment terms\n   - Justification for any excess (special skills, risks, expertise)\n   - Must demonstrate arm's length principle\n5. Consider: Salaries, commissions, benefits, non-monetary benefits\n        ",
+        "questions": [
+            {
+                "id": "cp_1",
+                "question": "Were there any payments, benefits, or transactions to shareholders, directors, officers, partners, or related parties?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "cp_2",
+                "question": "What was the total amount of these payments (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "cp_3",
+                "question": "What would the payment have been if made to an unconnected party with similar role, responsibility, risk profile, and expertise (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "cp_4",
+                "question": "If actual payment differs from market rate, why is there a difference?",
+                "type": "text"
+            },
+            {
+                "id": "cp_5",
+                "question": "Does the total payment to connected parties exceed AED 500,000 for the Tax Period?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "cp_6",
+                "question": "Was this payment recurring, and did it start before Corporate Tax became applicable?",
+                "type": "select",
+                "options": [
+                    "Yes - Recurring before CT",
+                    "Yes - New payment",
+                    "No"
+                ]
+            },
+            {
+                "id": "cp_7",
+                "question": "Are there contracts or agreements supporting the payment terms to the connected party?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partial"
+                ]
+            },
+            {
+                "id": "cp_8",
+                "question": "Were there any non-monetary benefits provided to connected parties?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "cp_9",
+                "question": "If yes, describe and estimate value of non-monetary benefits:",
+                "type": "text"
+            }
+        ]
+    },
+    "Related Party Transactions": {
+        "description": "Transfer pricing and related party transaction assessment",
+        "questions": [
+            {
+                "id": "rpt_1",
+                "question": "Is there any transaction with a person, family member, or company that owns, controls, or significantly influences 50% or more of your business?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "rpt_2",
+                "question": "Is there any transaction with another business commonly owned or controlled by the same person or group?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "rpt_3",
+                "question": "What types of transactions do you have with related parties?",
+                "type": "multiselect",
+                "options": [
+                    "Sales",
+                    "Purchases",
+                    "Loans",
+                    "Services",
+                    "Assets",
+                    "Management Fees",
+                    "Royalties",
+                    "Other"
+                ]
+            },
+            {
+                "id": "rpt_4",
+                "question": "How were the prices or charges for these transactions determined?",
+                "type": "text"
+            },
+            {
+                "id": "rpt_5",
+                "question": "Would the price be the same if the transaction was with an independent party?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Similar",
+                    "Different"
+                ]
+            },
+            {
+                "id": "rpt_6",
+                "question": "If different, what special skills, risks, or benefits justify the difference?",
+                "type": "text"
+            },
+            {
+                "id": "rpt_7",
+                "question": "Do you have agreements, contracts, or board approvals supporting related party transactions?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partial"
+                ]
+            },
+            {
+                "id": "rpt_8",
+                "question": "Is the total value of all transactions with related parties during the year less than AED 40 million?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "rpt_9",
+                "question": "Does any single type of related party transaction exceed AED 4 million?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "rpt_10",
+                "question": "Is the company part of a multinational group with global revenues above AED 3.15 billion, or does the company itself have annual revenues above AED 200 million?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            }
+        ]
+    },
+    "Real Estate": {
+        "description": "Real estate investment and taxation assessment",
+        "methodology": "\nCRITICAL NOTES:\n1. Real estate investment income of INDIVIDUALS is NOT taxable in UAE (clearly stated in rules)\n2. Must refer to datasets and provide specific, accurate answers (not generic ChatGPT responses)\n3. Consider: Property type, ownership structure, business activity, accounting treatment\n        ",
+        "questions": [
+            {
+                "id": "re_1",
+                "question": "Who owns the property?",
+                "type": "select",
+                "options": [
+                    "Individual",
+                    "Company",
+                    "Joint Ownership",
+                    "Freezone Company"
+                ]
+            },
+            {
+                "id": "re_2",
+                "question": "If it's an individual, what is the nationality of the owner?",
+                "type": "text"
+            },
+            {
+                "id": "re_3",
+                "question": "What's the nature of the property?",
+                "type": "select",
+                "options": [
+                    "Commercial",
+                    "Residential",
+                    "Mixed Use"
+                ]
+            },
+            {
+                "id": "re_4",
+                "question": "What's the licensed activity of the Company?",
+                "type": "select",
+                "options": [
+                    "Buying & Selling of Real Estate",
+                    "Holding Co / Investment Company",
+                    "Real Estate Development",
+                    "Other"
+                ]
+            },
+            {
+                "id": "re_5",
+                "question": "Is the company intending to buy and sell in the short term, or hold for rentals and long-term appreciation?",
+                "type": "select",
+                "options": [
+                    "Short-term trading",
+                    "Long-term rental income",
+                    "Long-term appreciation",
+                    "Mixed strategy"
+                ]
+            },
+            {
+                "id": "re_6",
+                "question": "Do you have the Title of the property, or is it still under SPA / Oqood?",
+                "type": "select",
+                "options": [
+                    "Title Deed",
+                    "SPA",
+                    "Oqood",
+                    "Under Construction"
+                ]
+            },
+            {
+                "id": "re_7",
+                "question": "When did you purchase? (Date of Oqood / Property Title Deed)",
+                "type": "date"
+            },
+            {
+                "id": "re_8",
+                "question": "Do you already have books of accounts prepared?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "In Progress"
+                ]
+            },
+            {
+                "id": "re_9",
+                "question": "What's the concern you would like to address?",
+                "type": "text"
+            },
+            {
+                "id": "re_10",
+                "question": "Do you have any document to upload for analysis?",
+                "type": "select",
+                "options": [
+                    "Yes - will upload",
+                    "No"
+                ]
+            }
+        ]
+    },
+    "Qualifying Freezone Persons (QFZP)": {
+        "description": "Assessment for Qualifying Free Zone Person status (0% tax rate eligibility)",
+        "questions": [
+            {
+                "id": "qfzp_1",
+                "question": "Is your company registered in a freezone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "qfzp_2",
+                "question": "Provide total revenue for the tax period (AED):",
+                "type": "number"
+            },
+            {
+                "id": "qfzp_3",
+                "question": "Income from transactions with natural persons (except aircraft leasing, ship operations, fund management, wealth management) - Amount (AED) and %:",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_4",
+                "question": "Income from banking activities - Amount (AED) and %:",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_5",
+                "question": "Income from insurance activities (excluding reinsurance or captive insurance) - Amount (AED) and %:",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_6",
+                "question": "Income from financial and leasing activities (except ships, aircraft, treasury, and related party financing) - Amount (AED) and %:",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_7",
+                "question": "Income from immovable property other than commercial property in freezone - Amount (AED) and %:",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_8",
+                "question": "Income from qualifying activities with mainland/international clients:",
+                "type": "multiselect",
+                "options": [
+                    "Manufacturing and processing",
+                    "Trading of commodities",
+                    "Ship management/ownership/operation",
+                    "Aircraft finance and leasing",
+                    "Group treasury services",
+                    "Holding of shares/securities",
+                    "Reinsurance",
+                    "Fund management/wealth management",
+                    "Headquarter services",
+                    "Logistics services"
+                ]
+            },
+            {
+                "id": "qfzp_9",
+                "question": "Provide total income from above qualifying activities (AED):",
+                "type": "number"
+            },
+            {
+                "id": "qfzp_10",
+                "question": "How much of your income (amount and %) is with other freezone persons?",
+                "type": "text"
+            },
+            {
+                "id": "qfzp_11",
+                "question": "If you outsource any activity, is it to freezone persons and do you supervise that work?",
+                "type": "select",
+                "options": [
+                    "Yes - to FZ with supervision",
+                    "Yes - to FZ no supervision",
+                    "No outsourcing",
+                    "Outsourced to non-FZ"
+                ]
+            },
+            {
+                "id": "qfzp_12",
+                "question": "Are your core income generating activities and key decisions carried out in the freezone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partially"
+                ]
+            },
+            {
+                "id": "qfzp_13",
+                "question": "Do you incur expenses in the company that are as per usual benchmark in the same industry?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Not Sure"
+                ]
+            },
+            {
+                "id": "qfzp_14",
+                "question": "Do you have real operations in the freezone? (e.g., space, adequate staff to run your activities)",
+                "type": "select",
+                "options": [
+                    "Yes - Full operations",
+                    "Yes - Minimal",
+                    "No"
+                ]
+            }
+        ]
+    },
+    "Tax Residency Certificate - Companies": {
+        "description": "Eligibility assessment for UAE Tax Residency Certificate for Companies",
+        "questions": [
+            {
+                "id": "trc_c_1",
+                "question": "Is your company incorporated or legally registered in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_c_2",
+                "question": "Is the place of effective management of the company in the UAE (i.e., key management and commercial decisions are made in the UAE)?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partially"
+                ]
+            },
+            {
+                "id": "trc_c_3",
+                "question": "Does your company maintain proper books and records in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partial"
+                ]
+            },
+            {
+                "id": "trc_c_4",
+                "question": "Has your company filed UAE Corporate Tax returns (if applicable) and complied with other tax obligations?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Not yet required",
+                    "In progress"
+                ]
+            }
+        ]
+    },
+    "Tax Residency Certificate - Individuals": {
+        "description": "Eligibility assessment for UAE Tax Residency Certificate for Individuals",
+        "questions": [
+            {
+                "id": "trc_i_1",
+                "question": "Is your usual home and main financial/personal interests located in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_2",
+                "question": "Do you own or rent a home in the UAE?",
+                "type": "select",
+                "options": [
+                    "Own",
+                    "Rent",
+                    "Neither"
+                ]
+            },
+            {
+                "id": "trc_i_3",
+                "question": "Are your main family members (spouse, children, dependents) living in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes - All",
+                    "Yes - Some",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_4",
+                "question": "Do you have bank accounts, investments, or other financial assets in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes - Significant",
+                    "Yes - Some",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_5",
+                "question": "Is your primary source of income derived from employment or business activities in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partially"
+                ]
+            },
+            {
+                "id": "trc_i_6",
+                "question": "Are your personal and professional documents (ID, driver's license, health insurance, etc.) registered in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes - All",
+                    "Yes - Most",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_7",
+                "question": "Do you spend the majority of your free time in the UAE compared to other countries?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_8",
+                "question": "Are your legal or financial obligations (taxes, loans, insurance) mainly in the UAE?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "Partially"
+                ]
+            },
+            {
+                "id": "trc_i_9",
+                "question": "Do you have any significant tax residency in another country that may conflict with UAE residency?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "trc_i_10",
+                "question": "How many days have you been in the UAE in the last 12 months?",
+                "type": "number"
+            },
+            {
+                "id": "trc_i_11",
+                "question": "If less than 183 days, do you meet the 90-day rule criteria? (UAE/GCC nationality OR UAE Resident Permit AND permanent residence OR employment/business in UAE)",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "N/A - Over 183 days"
+                ]
+            }
+        ]
+    },
+    "Designated Freezone Transactions": {
+        "description": "VAT treatment for Designated Free Zone transactions",
+        "questions": [
+            {
+                "id": "dfz_1",
+                "question": "Do you provide services from the Designated Zone to customers in the mainland or abroad?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_2",
+                "question": "Do you receive services from mainland or foreign suppliers while in the Designated Zone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_3",
+                "question": "Have you had any lost, missing, or unaccounted-for goods in the Designated Zone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_4",
+                "question": "When selling to mainland, is the buyer a VAT-registered business (B2B) or an individual consumer (B2C)?",
+                "type": "select",
+                "options": [
+                    "B2B",
+                    "B2C",
+                    "Both",
+                    "N/A"
+                ]
+            },
+            {
+                "id": "dfz_5",
+                "question": "Do you sell or move goods from the Designated Zone to the UAE mainland?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_6",
+                "question": "Do you purchase goods from the UAE mainland into the Designated Zone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_7",
+                "question": "Do you import goods from abroad directly into the Designated Zone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_8",
+                "question": "When transferring, do the goods remain under customs suspension and not altered?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "N/A"
+                ]
+            },
+            {
+                "id": "dfz_9",
+                "question": "Do you transfer goods between two different Designated Zones?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "dfz_10",
+                "question": "Are any of those goods consumed, used, or written off inside the zone?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            }
+        ]
+    },
+    "Profit Margin Scheme (Used Goods Sales VAT)": {
+        "description": "VAT Profit Margin Scheme for used goods, antiques, collectibles",
+        "questions": [
+            {
+                "id": "pms_1",
+                "question": "What type of goods are you selling?",
+                "type": "multiselect",
+                "options": [
+                    "Used goods",
+                    "Antiques",
+                    "Collectibles"
+                ]
+            },
+            {
+                "id": "pms_2",
+                "question": "From whom did you purchase these goods?",
+                "type": "select",
+                "options": [
+                    "VAT-registered supplier",
+                    "Non-registered person",
+                    "Mixed"
+                ]
+            },
+            {
+                "id": "pms_3",
+                "question": "Did you claim input VAT on the purchase of these goods?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "pms_4",
+                "question": "Does the purchase invoice you received show VAT separately?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "pms_5",
+                "question": "Have you included any additional costs (like transport, commission, or repairs) in the purchase price of these goods?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "pms_6",
+                "question": "Do you keep a record or stock ledger of each item purchased and sold under Profit Margin Scheme?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "In Progress"
+                ]
+            },
+            {
+                "id": "pms_7",
+                "question": "When you issue invoices to customers, do you include the wording 'Tax charged with reference to the profit margin'?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "pms_8",
+                "question": "Is your selling price lower than your purchase cost (making a loss)?",
+                "type": "select",
+                "options": [
+                    "Yes - Loss on some items",
+                    "No - All profitable"
+                ]
+            }
+        ]
+    },
+    "Voluntary Disclosures (VDS) - VAT": {
+        "description": "Voluntary disclosure for VAT errors or underpayments",
+        "questions": [
+            {
+                "id": "vds_vat_1",
+                "question": "Did you discover any error in your VAT return or refund application that needs correction?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "vds_vat_2",
+                "question": "Has this type of error happened before (first time or repeated)?",
+                "type": "select",
+                "options": [
+                    "First time",
+                    "Repeated"
+                ]
+            },
+            {
+                "id": "vds_vat_3",
+                "question": "Is the voluntary disclosure already submitted?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "In Progress"
+                ]
+            },
+            {
+                "id": "vds_vat_4",
+                "question": "When did the error occur?",
+                "type": "select",
+                "options": [
+                    "Within last 1 year",
+                    "Within last 2 years",
+                    "Within last 3 years",
+                    "Within last 4 years",
+                    "More than 4 years"
+                ]
+            },
+            {
+                "id": "vds_vat_5",
+                "question": "How much is the underpaid / overpaid VAT amount (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "vds_vat_6",
+                "question": "Are you prepared to settle the underpaid VAT within 20 business days to avoid late payment interest?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No",
+                    "N/A - Overpaid"
+                ]
+            }
+        ]
+    },
+    "Voluntary Disclosures (VDS) - Corporate Tax": {
+        "description": "Voluntary disclosure for Corporate Tax errors or underpayments",
+        "questions": [
+            {
+                "id": "vds_ct_1",
+                "question": "Did you discover any mistake or underpayment in your Corporate Tax return?",
+                "type": "select",
+                "options": [
+                    "Yes",
+                    "No"
+                ]
+            },
+            {
+                "id": "vds_ct_2",
+                "question": "When was the original tax return due, and how long ago was it filed?",
+                "type": "text"
+            },
+            {
+                "id": "vds_ct_3",
+                "question": "What is the underpaid Corporate Tax amount (Tax Difference) (AED)?",
+                "type": "number"
+            },
+            {
+                "id": "vds_ct_4",
+                "question": "Did you submit a Voluntary Disclosure yet, or is it still pending?",
+                "type": "select",
+                "options": [
+                    "Submitted",
+                    "Pending",
+                    "Planning to submit"
+                ]
+            }
+        ]
+    }
+}
