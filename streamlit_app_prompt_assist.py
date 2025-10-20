@@ -23,6 +23,9 @@ import requests
 import random
 from collections import defaultdict
 
+# Import timing analysis module
+from timing_analysis import reset_timing, time_step, display_timing_table, QUERY_TIMING
+
 # Page configuration
 st.set_page_config(
     page_title="Taxmen AI v6 - Complete Edition",
@@ -150,7 +153,7 @@ CALCULATION METHODOLOGY:
         ]
     },
     "Transitional Tax Benefits - Intangible Assets": {
-        "description": "Transitional relief for intangible assets",
+        "description": "Transitional relief for intangible assets (same methodology as property, no control issues)",
         "methodology": """
 CALCULATION METHODOLOGY:
 Same as property transitional rules EXCEPT control issue doesn't apply.
@@ -896,12 +899,12 @@ class AdvancedRetriever:
 
         similarity_retriever = self.chunk_vectorstore.as_retriever(
             search_type="similarity",
-            search_kwargs={"k": 25}
+            search_kwargs={"k": 5}
         )
 
         mmr_retriever = self.chunk_vectorstore.as_retriever(
             search_type="mmr",
-            search_kwargs={"k": 20, "fetch_k": 40}
+            search_kwargs={"k": 5, "fetch_k": 15}
         )
 
         ensemble_retriever = EnsembleRetriever(
@@ -914,7 +917,7 @@ class AdvancedRetriever:
     def create_compressed_retriever(self, base_retriever):
         """Add compression"""
         try:
-            llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+            llm = ChatOpenAI(model_name="gpt-3.5-turbo", streaming=True, temperature=0)
             compressor = LLMChainExtractor.from_llm(llm)
             return ContextualCompressionRetriever(
                 base_compressor=compressor,
@@ -1021,7 +1024,10 @@ def process_documents_with_caching():
 
 
 def create_context_aware_conversation_chain(doc_vectorstore, chunk_vectorstore, user_context="", qa_summary=""):
-    """Create conversation chain with persistent context"""
+    """
+    OPTIMIZED: Create conversation chain with COMBINED enhanced prompt
+    This eliminates the need for a separate enhancement LLM call
+    """
     advanced_retriever = AdvancedRetriever(doc_vectorstore, chunk_vectorstore)
     ensemble_retriever, doc_retriever = advanced_retriever.create_ensemble_retriever()
     compressed_retriever = advanced_retriever.create_compressed_retriever(ensemble_retriever)
@@ -1032,12 +1038,15 @@ def create_context_aware_conversation_chain(doc_vectorstore, chunk_vectorstore, 
     if qa_summary:
         full_context += f"\n{qa_summary}\n"
 
+    # ============================================================================
+    # OPTIMIZED PROMPT: Combines RAG accuracy + Enhancement formatting in ONE call
+    # ============================================================================
     enhanced_prompt = PromptTemplate(
-        template=f"""You are an expert UAE tax assistant with comprehensive knowledge and user context.
+        template=f"""You are Taxmen AI - a professional, engaging, and empathetic tax advisor with comprehensive knowledge and user context.
 
 {full_context}
 
-CRITICAL INSTRUCTIONS:
+CRITICAL INSTRUCTIONS - ANSWER ACCURACY:
 1. NOT PURELY QUESTION-BASED: Analyze datasets and documents to provide calculated answers
 2. MAINTAIN CONTINUITY: Use user profile and previous Q&A history - NEVER ask for information already provided
 3. SHOW CALCULATIONS: Display step-by-step methodology with clear formulas
@@ -1045,21 +1054,39 @@ CRITICAL INSTRUCTIONS:
 5. APPLY METHODOLOGIES: Use calculation rules from user context automatically
 
 KEY PRINCIPLES:
-- Real Estate: Individual investment income NOT taxable in UAE
+- Real Estate: Individual investment income NOT taxable locally
 - Small Business Relief: Gross receipts = Revenue + Asset sales + Exempt/out-of-scope + Dividends
 - Transitional Rules: Compare market value vs time apportionment, consider control for off-plan
 - Connected Parties: Calculate excess amounts, state implications and requirements
+
+CRITICAL INSTRUCTIONS - RESPONSE FORMATTING & TONE:
+Your response MUST be elegant, friendly, and beautifully articulated with these characteristics:
+1. **Warm and Reassuring**: Use a friendly, empathetic tone while maintaining professional accuracy
+2. **Well-Structured**: Use appropriate formatting with:
+   - Clear sections and headers where relevant
+   - Bullet points (•) or numbered lists for multi-step processes
+   - **Bold text** for key points, figures, and important terms
+   - *Italics* for emphasis on critical concepts
+3. **Empathy and Support**: Make the user feel supported and understood
+4. **Clear Language**: Explain complex tax concepts in accessible, easy-to-understand terms
+5. **Context and Explanations**: Provide helpful context that aids understanding
+6. **Professional Signature**: ALWAYS end with:
+
+---
+**- Taxmen AI**
+*Your Tax Intelligence Partner*
 
 RETRIEVED DOCUMENTS:
 {{context}}
 
 USER QUESTION: {{question}}
 
-COMPREHENSIVE ANSWER (with calculations, methodology, and document citations):""",
+COMPREHENSIVE ANSWER (accurate calculations + beautiful formatting with markdown):""",
         input_variables=["context", "question"]
     )
 
-    llm = ChatOpenAI(model_name="gpt-4-turbo", temperature=0.1)
+    # Use GPT-4 for high-quality single-pass response
+    llm = ChatOpenAI(model_name="gpt-4-turbo", temperature=0.3)  # Slightly higher temp for better flow
 
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -1142,7 +1169,7 @@ def check_file_size(uploaded_file):
 # Certificate Extraction and Management
 # -------------------------------
 def extract_certificate_data(pdf_file, filename):
-    """Extract comprehensive information from UAE certificates using advanced LLM analysis"""
+    """Extract comprehensive information from certificates using advanced LLM analysis"""
     try:
         pdf_reader = PdfReader(pdf_file)
         full_text = ""
@@ -1156,14 +1183,14 @@ def extract_certificate_data(pdf_file, filename):
             st.error("OpenAI API key is required for certificate data extraction.")
             return None
 
-        extraction_prompt = f"""You are an expert UAE document analyst specializing in Federal Tax Authority certificates and Business License certificates. Analyze this document and extract ALL relevant information with perfect accuracy.
+        extraction_prompt = f"""You are an expert document analyst specializing in Federal Tax Authority certificates and Business License certificates. Analyze this document and extract ALL relevant information with perfect accuracy.
 
 DOCUMENT TYPE IDENTIFICATION:
 First, identify what type of document this is:
 1. "Tax Registration Certificate - Corporate Tax"
 2. "Tax Registration Certificate - VAT" 
 3. "Business License Certificate"
-4. "Other UAE Document"
+4. "Other Document"
 
 COMPREHENSIVE DATA EXTRACTION:
 Extract ALL available information and return as a valid JSON object. Use empty string "" for missing fields.
@@ -1333,32 +1360,8 @@ def load_certificates_data_robust():
 
 
 # -------------------------------
-# LLM Enhancement Functions
+# LLM Helper Functions
 # -------------------------------
-def enhance_response(original_answer, query):
-    """Enhance response for better readability"""
-    enhancer_prompt = f"""
-You are a professional tax advisor. Rewrite this answer to be more elegant, friendly, and well-structured.
-Ensure your response:
-1. Is warm and reassuring while maintaining accuracy
-2. Uses clear formatting with bullet points or sections where relevant
-3. Includes appropriate bold/italic formatting for key points
-4. Adds empathy to make the user feel supported
-5. Uses accessible language for complex concepts
-
-Original Question: {query}
-Original Answer: {original_answer}
-
-Enhanced Response (use markdown formatting):
-"""
-    try:
-        enhancer_llm = ChatOpenAI(model_name="gpt-4-turbo", temperature=0.7)
-        enhanced_answer = enhancer_llm.invoke(enhancer_prompt).content
-        return enhanced_answer
-    except:
-        return original_answer
-
-
 def is_tax_related(question):
     """Check if the query is tax-related."""
     tax_guardrail_prompt = f"""
@@ -1498,7 +1501,7 @@ def main():
         if completed:
             st.success(f"{len(completed)} active profile(s)")
             for cat in completed:
-                st.info(f"{cat}")
+                st.info(f"✓ {cat}")
         else:
             st.warning("Complete questionnaires to enable context-aware responses")
 
@@ -1535,16 +1538,16 @@ def main():
     """, unsafe_allow_html=True)
 
     st.markdown('<h1 class="main-title">Taxmen AI v6 Complete Edition</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="enhanced-badge">Context-Aware Tax Assistant with Persistent Memory & Smart Caching</p>',
+    st.markdown('<p class="enhanced-badge">⚡ OPTIMIZED: Single-Pass Enhanced Responses</p>',
                 unsafe_allow_html=True)
 
     # Main Navigation Tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "Profile Setup",
-        "Ask Questions",
-        "Certificate Manager",
-        "Certificate Database",
-        "Q&A History"
+        "📋 Profile Setup",
+        "💬 Ask Questions",
+        "📄 Certificate Manager",
+        "📊 Certificate Database",
+        "📜 Q&A History"
     ])
 
     with tab1:
@@ -1568,7 +1571,7 @@ def main():
                 context = load_persistent_context(st.session_state.user_id)
                 saved_responses = context[category]['responses']
 
-                st.success(f"You've already completed '{category}' on {context[category]['timestamp']}")
+                st.success(f"✓ You've already completed '{category}' on {context[category]['timestamp']}")
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button("View Saved Responses", use_container_width=True):
@@ -1686,7 +1689,7 @@ def main():
                     if st.button("Save Profile", type="primary", use_container_width=True):
                         if responses:
                             if save_persistent_context(st.session_state.user_id, category, responses):
-                                st.success(f"Profile saved successfully!")
+                                st.success(f"✅ Profile saved successfully!")
                                 st.session_state.conversation_chain = None  # Reset to rebuild with new context
                                 if f'update_{category}' in st.session_state:
                                     del st.session_state[f'update_{category}']
@@ -1709,18 +1712,18 @@ def main():
         qa_history = load_qa_history(st.session_state.user_id, limit=5)
 
         if completed or qa_history:
-            with st.expander("Active Context (Click to view)", expanded=False):
+            with st.expander("📋 Active Context (Click to view)", expanded=False):
                 if completed:
                     st.success(f"**{len(completed)} Saved Profile(s):**")
                     for cat in completed:
-                        st.write(f"  {cat}")
+                        st.write(f"  ✓ {cat}")
 
                 if qa_history:
                     st.info(f"**{len(qa_history)} Previous Conversations** loaded as context")
                     for i, qa in enumerate(qa_history[-3:], 1):  # Show last 3
                         st.caption(f"{i}. [{qa['category']}] {qa['question'][:60]}...")
         else:
-            st.warning("**No context yet.** Complete questionnaires in 'Profile Setup' for personalized answers!")
+            st.warning("⚠️ **No context yet.** Complete questionnaires in 'Profile Setup' for personalized answers!")
 
         st.markdown("---")
 
@@ -1753,7 +1756,7 @@ def main():
                     st.error("File size exceeds 5 MB limit")
 
         if not openai_api_key:
-            st.error("Please enter your OpenAI API key in the sidebar to continue")
+            st.error("⚠️ Please enter your OpenAI API key in the sidebar to continue")
             st.stop()
 
         # Process documents with caching
@@ -1769,11 +1772,11 @@ def main():
                         )
                         st.session_state.collection_stats = stats
                         st.success(
-                            f"Knowledge base ready: {stats['total_documents']} docs, {stats['total_chunks']:,} chunks")
+                            f"✅ Knowledge base ready: {stats['total_documents']} docs, {stats['total_chunks']:,} chunks")
 
             # Display stats
             if st.session_state.collection_stats:
-                with st.expander("Collection Statistics"):
+                with st.expander("📊 Collection Statistics"):
                     col1, col2, col3 = st.columns(3)
                     with col1:
                         st.metric("Documents", st.session_state.collection_stats['total_documents'])
@@ -1804,40 +1807,67 @@ def main():
         )
 
         if completed:
-            st.info("Your saved profile data will be automatically used for calculations")
+            st.info("💡 Your saved profile data will be automatically used for calculations")
 
-        if st.button("Get Calculated Answer", type="primary", use_container_width=True):
-            if not question.strip():
-                st.warning("Please enter a question")
+        ask_button = st.button("Get Enhanced Answer", type="primary", use_container_width=True)
+
+        # ============================================================================
+        # OPTIMIZED QUERY HANDLING - Single LLM call with timing
+        # ============================================================================
+        if ask_button and question.strip():
+            if not openai_api_key:
+                st.error("⚠️ Please enter your OpenAI API key in the sidebar.")
+                st.stop()
             elif not st.session_state.conversation_chain:
-                st.error("Knowledge base not ready")
-            else:
-                if st.session_state.kb_selection == "Existing Knowledge Base":
-                    if not is_tax_related(question):
-                        st.error("Please ask tax, accounting, finance, or business compliance related questions")
-                        st.stop()
+                st.error("⚠️ Knowledge base not ready")
+                st.stop()
 
-                with st.spinner("Generating comprehensive calculated answer..."):
-                    try:
+            # START TIMING INSTRUMENTATION
+            reset_timing()
+
+            # Step 1: Validate question (only for existing KB)
+            if st.session_state.kb_selection == "Existing Knowledge Base":
+                with time_step("1. Question Validation", "Check if question is tax-related using LLM"):
+                    is_valid = is_tax_related(question)
+
+                if not is_valid:
+                    st.error("❌ Please ask tax, accounting, finance, or business compliance related questions")
+                    st.stop()
+
+            with st.spinner("🤔 Generating comprehensive answer with beautiful formatting..."):
+                try:
+                    # Step 2: Build user context
+                    with time_step("2. Build User Context", "Load user profile from storage and Q&A history"):
+                        user_context = build_comprehensive_user_context(st.session_state.user_id)
+                        qa_summary = build_qa_summary(st.session_state.user_id)
+
+                    # Step 3: SINGLE LLM CALL - RAG + Enhancement combined
+                    with time_step("3. RAG Chain Invoke (OPTIMIZED)", "Single call: Retrieve + Generate enhanced response"):
                         response = st.session_state.conversation_chain.invoke({'question': question})
-                        raw_answer = response.get('answer', '').strip()
 
-                        if not raw_answer or raw_answer == "Information not available.":
-                            st.error("No answer generated. Please rephrase your question or provide more details.")
-                        else:
-                            if st.session_state.kb_selection == "Existing Knowledge Base":
-                                final_answer = enhance_response(raw_answer, question)
-                                suffix = "\n\n---\n**Need personalized assistance?** Our tax professionals are available for detailed consultation."
-                                final_answer += suffix
-                            else:
-                                final_answer = raw_answer
+                    # Step 4: Extract answer (already enhanced!)
+                    with time_step("4. Extract Answer", "Parse answer from response object"):
+                        final_answer = response.get('answer', '').strip()
 
-                            st.markdown("### Your Comprehensive Answer:")
+                    # NOTE: Step 5 "Enhance Response" is ELIMINATED - already done in Step 3!
+
+                    # Check if we got a valid answer
+                    if not final_answer or final_answer == "Information not available.":
+                        st.error("❌ No answer generated. Please rephrase your question or provide more details.")
+
+                        # Still show timing even if no answer
+                        if QUERY_TIMING:
+                            display_timing_table("Query Time (No Answer Found)")
+
+                    else:
+                        # Step 6: Display answer
+                        with time_step("6. Display Answer", "Render markdown and show source documents"):
+                            st.markdown("### ✨ Your Comprehensive Answer:")
                             st.markdown(final_answer)
 
-                            # Source documents
+                            # Show source documents if available
                             if 'source_documents' in response and response['source_documents']:
-                                with st.expander("View Source Documents"):
+                                with st.expander("📚 View Source Documents"):
                                     for i, doc in enumerate(response['source_documents'][:5]):
                                         source = doc.metadata.get('filename', 'Unknown source')
                                         page = doc.metadata.get('page', 'Unknown page')
@@ -1845,25 +1875,39 @@ def main():
                                         st.write(f"*Preview:* {doc.page_content[:200]}...")
                                         st.write("---")
 
+                        # Step 7: Save to history
+                        with time_step("7. Save to History", "Write Q&A to CSV history file"):
                             save_qa_to_history(question, final_answer, "General", st.session_state.user_id)
                             st.session_state.chat_history.append((question, final_answer))
 
-                    except Exception as e:
-                        st.error(f"Error generating response: {str(e)}")
+                        # ============================================================================
+                        # DISPLAY TIMING TABLE
+                        # ============================================================================
+                        display_timing_table("Total Query Time (OPTIMIZED)")
+
+                        # Show optimization benefit
+                        st.success("⚡ **Optimization Active:** Response generated in single LLM call (no separate enhancement step)")
+
+                except Exception as e:
+                    st.error(f"❌ Error generating response: {str(e)}")
+
+                    # Show timing even if error occurred
+                    if QUERY_TIMING:
+                        display_timing_table("Query Time (Error Occurred)")
 
     with tab3:
         st.header("Certificate Manager")
 
         st.markdown("""
-        Upload UAE tax certificates (Corporate Tax Registration, VAT Registration, Business Licenses) 
+        Upload tax certificates (Corporate Tax Registration, VAT Registration, Business Licenses) 
         for automatic data extraction and storage.
         """)
 
         openai_api_key = os.environ.get("OPENAI_API_KEY")
         if openai_api_key:
-            st.success("AI-powered extraction enabled")
+            st.success("✅ AI-powered extraction enabled")
         else:
-            st.warning("Enter OpenAI API key in sidebar to enable AI-powered extraction")
+            st.warning("⚠️ Enter OpenAI API key in sidebar to enable AI-powered extraction")
             st.info("You can still upload and store certificates manually")
 
         cert_file = st.file_uploader(
@@ -1874,33 +1918,32 @@ def main():
         )
 
         if cert_file:
-            st.success(f"Selected: {cert_file.name}")
+            st.success(f"✓ Selected: {cert_file.name}")
 
             col1, col2, col3 = st.columns(3)
 
             with col1:
                 if st.button("Preview Certificate", use_container_width=True):
                     st.info("Certificate preview - PDF viewer would go here")
-                    # You could add PDF preview here using pdf2image or similar
 
             with col2:
                 extract_button = st.button("Extract Data", use_container_width=True)
                 if extract_button:
                     if not openai_api_key:
-                        st.error("OpenAI API key required for extraction")
+                        st.error("❌ OpenAI API key required for extraction")
                     else:
-                        with st.spinner("Processing certificate with AI..."):
+                        with st.spinner("🤖 Processing certificate with AI..."):
                             cert_data = extract_certificate_data(cert_file, cert_file.name)
                             if cert_data:
                                 st.session_state['extracted_cert_data'] = cert_data
-                                st.success("Certificate data extracted successfully!")
+                                st.success("✅ Certificate data extracted successfully!")
 
                                 st.subheader("Extracted Information:")
                                 for key, value in cert_data.items():
                                     if value and key not in ['filename', 'upload_date']:
                                         st.write(f"**{key.replace('_', ' ').title()}:** {value}")
                             else:
-                                st.error("Failed to extract certificate data")
+                                st.error("❌ Failed to extract certificate data")
 
             with col3:
                 save_button = st.button("Save to Database", use_container_width=True)
@@ -1912,7 +1955,7 @@ def main():
                         with st.spinner("Extracting data..."):
                             cert_data = extract_certificate_data(cert_file, cert_file.name)
                     else:
-                        st.error("Please extract data first or enter OpenAI API key")
+                        st.error("❌ Please extract data first or enter OpenAI API key")
                         cert_data = None
 
                     if cert_data:
@@ -1922,15 +1965,15 @@ def main():
                             with open(cert_path, "wb") as f:
                                 f.write(cert_file.getbuffer())
 
-                            st.success("Certificate saved successfully!")
+                            st.success("✅ Certificate saved successfully!")
                             if 'extracted_cert_data' in st.session_state:
                                 del st.session_state['extracted_cert_data']
                             time.sleep(2)
                             st.rerun()
                         else:
-                            st.error("Failed to save certificate to database")
+                            st.error("❌ Failed to save certificate to database")
         else:
-            st.info("Upload a certificate PDF file to get started")
+            st.info("💡 Upload a certificate PDF file to get started")
 
             # Show example of what can be extracted
             with st.expander("What information can be extracted?"):
@@ -1976,7 +2019,7 @@ def main():
                 st.metric("Unique Companies", unique)
 
             # Search functionality
-            search_term = st.text_input("Search by Company Name:")
+            search_term = st.text_input("🔍 Search by Company Name:")
             if search_term and 'legal_name_english' in certificates_df.columns:
                 certificates_df = certificates_df[
                     certificates_df['legal_name_english'].str.contains(search_term, case=False, na=False) |
@@ -1989,14 +2032,14 @@ def main():
             # Export functionality
             csv_data = certificates_df.to_csv(index=False)
             st.download_button(
-                "Download as CSV",
+                "📥 Download as CSV",
                 data=csv_data,
                 file_name=f"certificates_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv",
                 use_container_width=True
             )
         else:
-            st.info("No certificate data found. Upload and save certificates in the Certificate Manager tab.")
+            st.info("🔭 No certificate data found. Upload and save certificates in the Certificate Manager tab.")
 
     with tab5:
         st.header("Q&A History")
@@ -2004,7 +2047,7 @@ def main():
         history = load_qa_history(st.session_state.user_id, limit=100)
 
         if history:
-            st.success(f"Found {len(history)} previous conversations")
+            st.success(f"📚 Found {len(history)} previous conversations")
 
             col1, col2 = st.columns(2)
             with col1:
@@ -2022,14 +2065,14 @@ def main():
             history_df = pd.DataFrame(history)
             csv_data = history_df.to_csv(index=False)
             st.download_button(
-                "Download Q&A History",
+                "📥 Download Q&A History",
                 data=csv_data,
                 file_name=f"qa_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv",
                 use_container_width=True
             )
         else:
-            st.info("No conversation history found. Start asking questions in the 'Ask Questions' tab!")
+            st.info("🔭 No conversation history found. Start asking questions in the 'Ask Questions' tab!")
 
 
 if __name__ == "__main__":
