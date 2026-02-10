@@ -795,8 +795,8 @@ Summary:"""
         except:
             return f"Document: {filename}\nContent: {text[:500]}..."
 
-    def create_hierarchical_vectorstore_with_progress(self, progress_bar, status_text):
-        """Create hierarchical vectorstore with progress tracking"""
+    def create_hierarchical_vectorstore_with_progress(self, progress_bar=None, status_text=None):
+        """Create hierarchical vectorstore with optional progress tracking"""
         doc_summaries = []
         doc_metadata = []
         all_chunks = []
@@ -806,9 +806,11 @@ Summary:"""
         total_files = len(pdf_files)
 
         for i, pdf_file in enumerate(pdf_files):
-            progress = int((i / total_files) * 70)
-            progress_bar.progress(progress)
-            status_text.text(f"Processing {i + 1}/{total_files}: {pdf_file}")
+            if progress_bar:
+                progress = int((i / total_files) * 70)
+                progress_bar.progress(progress)
+            if status_text:
+                status_text.text(f"Processing {i + 1}/{total_files}: {pdf_file}")
 
             try:
                 with open(os.path.join(self.documents_dir, pdf_file), "rb") as f:
@@ -842,14 +844,16 @@ Summary:"""
                             all_chunk_metadata.append(chunk_doc['metadata'])
 
             except Exception as e:
-                st.warning(f"Error processing {pdf_file}: {str(e)}")
+                print(f"Warning: Error processing {pdf_file}: {str(e)}")
                 continue
 
         if not doc_summaries or not all_chunks:
             raise ValueError("No valid documents could be processed")
 
-        status_text.text("Creating document-level vectorstore...")
-        progress_bar.progress(75)
+        if status_text:
+            status_text.text("Creating document-level vectorstore...")
+        if progress_bar:
+            progress_bar.progress(75)
 
         doc_vectorstore = FAISS.from_texts(
             texts=doc_summaries,
@@ -857,8 +861,10 @@ Summary:"""
             metadatas=doc_metadata
         )
 
-        status_text.text(f"Creating chunk-level vectorstore ({len(all_chunks)} chunks)...")
-        progress_bar.progress(85)
+        if status_text:
+            status_text.text(f"Creating chunk-level vectorstore ({len(all_chunks)} chunks)...")
+        if progress_bar:
+            progress_bar.progress(85)
 
         if len(all_chunks) > 1000:
             batch_size = 500
@@ -883,7 +889,8 @@ Summary:"""
                     chunk_vectorstore.merge_from(batch_vectorstore)
 
                 batch_progress = 85 + int((batch_idx / len(all_chunks)) * 15)
-                progress_bar.progress(batch_progress)
+                if progress_bar:
+                    progress_bar.progress(batch_progress)
         else:
             chunk_vectorstore = FAISS.from_texts(
                 texts=all_chunks,
@@ -891,7 +898,8 @@ Summary:"""
                 metadatas=all_chunk_metadata
             )
 
-        progress_bar.progress(100)
+        if progress_bar:
+            progress_bar.progress(100)
         return doc_vectorstore, chunk_vectorstore
 
 
@@ -962,10 +970,57 @@ def compute_documents_hash(documents_dir):
         return None
 
 
+@st.cache_resource(show_spinner=False)
+def build_vectorstore_cached(_documents_dir, _vectorstore_dir, _doc_hash):
+    """Build vectorstore once and cache across all sessions until app restarts.
+    The _doc_hash parameter ensures cache invalidates when documents change."""
+    processor = EnhancedDocumentProcessor(_documents_dir, _vectorstore_dir)
+
+    doc_vectorstore_path = os.path.join(_vectorstore_dir, "doc_vectorstore")
+    chunk_vectorstore_path = os.path.join(_vectorstore_dir, "chunk_vectorstore")
+    hash_file = os.path.join(_vectorstore_dir, "documents_hash.txt")
+
+    # Try to load from disk cache first
+    if (os.path.exists(doc_vectorstore_path) and
+            os.path.exists(chunk_vectorstore_path) and
+            os.path.exists(hash_file)):
+        with open(hash_file, "r") as f:
+            saved_hash = f.read().strip()
+        if saved_hash == _doc_hash:
+            try:
+                embeddings = OpenAIEmbeddings()
+                doc_vectorstore = FAISS.load_local(
+                    doc_vectorstore_path, embeddings,
+                    allow_dangerous_deserialization=True
+                )
+                chunk_vectorstore = FAISS.load_local(
+                    chunk_vectorstore_path, embeddings,
+                    allow_dangerous_deserialization=True
+                )
+                return doc_vectorstore, chunk_vectorstore
+            except Exception:
+                pass  # Fall through to rebuild
+
+    # Rebuild vectorstore
+    pdf_files = [f for f in os.listdir(_documents_dir) if f.lower().endswith('.pdf')]
+    if not pdf_files:
+        return None, None
+
+    doc_vectorstore, chunk_vectorstore = processor.create_hierarchical_vectorstore_with_progress(
+        None, None  # No progress bar in cached function
+    )
+
+    # Save to disk for future loads
+    doc_vectorstore.save_local(doc_vectorstore_path)
+    chunk_vectorstore.save_local(chunk_vectorstore_path)
+    with open(hash_file, "w") as f:
+        f.write(_doc_hash)
+
+    return doc_vectorstore, chunk_vectorstore
+
+
 def process_documents_with_caching():
     """Process documents with hash-based caching (avoid reprocessing unless files changed)"""
-    processor = EnhancedDocumentProcessor(DOCUMENTS_DIR, VECTORSTORE_DIR)
-
     current_hash = compute_documents_hash(DOCUMENTS_DIR)
     if not current_hash:
         pdf_files = [f for f in os.listdir(DOCUMENTS_DIR) if f.lower().endswith('.pdf')] if os.path.exists(DOCUMENTS_DIR) else []
@@ -975,72 +1030,18 @@ def process_documents_with_caching():
             st.error("Error computing document hash")
         return None, None
 
-    doc_vectorstore_path = os.path.join(VECTORSTORE_DIR, "doc_vectorstore")
-    chunk_vectorstore_path = os.path.join(VECTORSTORE_DIR, "chunk_vectorstore")
-    hash_file = os.path.join(VECTORSTORE_DIR, "documents_hash.txt")
-
-    # Try to load from cache
-    if (os.path.exists(doc_vectorstore_path) and
-            os.path.exists(chunk_vectorstore_path) and
-            os.path.exists(hash_file)):
-
-        with open(hash_file, "r") as f:
-            saved_hash = f.read().strip()
-
-        if saved_hash == current_hash:
-            st.info("Loading cached vectorstore (documents unchanged)...")
-            try:
-                embeddings = OpenAIEmbeddings()
-                doc_vectorstore = FAISS.load_local(
-                    doc_vectorstore_path,
-                    embeddings,
-                    allow_dangerous_deserialization=True
-                )
-                chunk_vectorstore = FAISS.load_local(
-                    chunk_vectorstore_path,
-                    embeddings,
-                    allow_dangerous_deserialization=True
-                )
-                st.success("Loaded cached vectorstore successfully")
-                return doc_vectorstore, chunk_vectorstore
-            except Exception as e:
-                st.warning(f"Cache load failed: {e}. Rebuilding...")
-
-    # Need to rebuild vectorstore
-    pdf_files = [f for f in os.listdir(DOCUMENTS_DIR) if f.lower().endswith('.pdf')]
-    total_files = len(pdf_files)
-
-    if total_files == 0:
-        st.error("No PDF files found in documents directory")
-        return None, None
-
-    st.info(f"Processing {total_files} documents (this will take a few minutes)...")
-
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    pdf_count = len([f for f in os.listdir(DOCUMENTS_DIR) if f.lower().endswith('.pdf')])
+    st.info(f"Loading knowledge base ({pdf_count} documents)... This may take a few minutes on first load.")
 
     try:
-        doc_vectorstore, chunk_vectorstore = processor.create_hierarchical_vectorstore_with_progress(
-            progress_bar, status_text
+        doc_vectorstore, chunk_vectorstore = build_vectorstore_cached(
+            DOCUMENTS_DIR, VECTORSTORE_DIR, current_hash
         )
-
-        doc_vectorstore.save_local(doc_vectorstore_path)
-        chunk_vectorstore.save_local(chunk_vectorstore_path)
-
-        with open(hash_file, "w") as f:
-            f.write(current_hash)
-
-        status_text.text("Processing complete!")
-        time.sleep(1)
-        progress_bar.empty()
-        status_text.empty()
-
+        if doc_vectorstore and chunk_vectorstore:
+            st.success("✅ Knowledge base ready!")
         return doc_vectorstore, chunk_vectorstore
-
     except Exception as e:
         st.error(f"Error processing documents: {str(e)}")
-        progress_bar.empty()
-        status_text.empty()
         return None, None
 
 
