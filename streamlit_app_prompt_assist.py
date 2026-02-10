@@ -59,6 +59,7 @@ USER_CONTEXT_FILE = "user_context.json"
 QUESTIONNAIRE_CONFIG_FILE = "questionnaire_config.json"
 
 # Create all necessary directories
+os.makedirs(DOCUMENTS_DIR, exist_ok=True)
 os.makedirs(VECTORSTORE_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
 os.makedirs(CERTIFICATES_DIR, exist_ok=True)
@@ -945,14 +946,19 @@ def compute_documents_hash(documents_dir):
     """Compute hash of all documents for caching"""
     hash_object = hashlib.sha256()
     try:
+        if not os.path.exists(documents_dir):
+            return None
         pdf_files = sorted([f for f in os.listdir(documents_dir) if f.lower().endswith('.pdf')])
+        if not pdf_files:
+            return None
         for filename in pdf_files:
             filepath = os.path.join(documents_dir, filename)
             with open(filepath, "rb") as f:
                 for chunk in iter(lambda: f.read(4096), b""):
                     hash_object.update(chunk)
         return hash_object.hexdigest()
-    except:
+    except Exception as e:
+        st.warning(f"Hash computation issue: {e}")
         return None
 
 
@@ -962,7 +968,11 @@ def process_documents_with_caching():
 
     current_hash = compute_documents_hash(DOCUMENTS_DIR)
     if not current_hash:
-        st.error("Error computing document hash")
+        pdf_files = [f for f in os.listdir(DOCUMENTS_DIR) if f.lower().endswith('.pdf')] if os.path.exists(DOCUMENTS_DIR) else []
+        if not pdf_files:
+            st.warning("No PDF documents found in the documents folder. Please upload documents first.")
+        else:
+            st.error("Error computing document hash")
         return None, None
 
     doc_vectorstore_path = os.path.join(VECTORSTORE_DIR, "doc_vectorstore")
