@@ -1589,10 +1589,10 @@ def main():
                 st.success(f"✓ You've already completed '{category}' on {context[category]['timestamp']}")
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("View Saved Responses", width="stretch"):
+                    if st.button("View Saved Responses", use_container_width=True):
                         st.session_state[f'view_{category}'] = True
                 with col2:
-                    if st.button("Update Responses", width="stretch"):
+                    if st.button("Update Responses", use_container_width=True):
                         st.session_state[f'update_{category}'] = True
                         st.rerun()
 
@@ -1701,7 +1701,7 @@ def main():
                 # Save button
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("Save Profile", type="primary", width="stretch"):
+                    if st.button("Save Profile", type="primary", use_container_width=True):
                         if responses:
                             if save_persistent_context(st.session_state.user_id, category, responses):
                                 st.success(f"✅ Profile saved successfully!")
@@ -1714,7 +1714,7 @@ def main():
                             st.warning("Please answer at least one question before saving")
 
                 with col2:
-                    if st.button("Cancel", width="stretch"):
+                    if st.button("Cancel", use_container_width=True):
                         if f'update_{category}' in st.session_state:
                             del st.session_state[f'update_{category}']
                         st.rerun()
@@ -1824,7 +1824,7 @@ def main():
         if completed:
             st.info("💡 Your saved profile data will be automatically used for calculations")
 
-        ask_button = st.button("Get Enhanced Answer", type="primary", width="stretch")
+        ask_button = st.button("Get Enhanced Answer", type="primary", use_container_width=True)
 
         # ============================================================================
         # OPTIMIZED QUERY HANDLING - Single LLM call with timing
@@ -1938,11 +1938,11 @@ def main():
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                if st.button("Preview Certificate", width="stretch"):
+                if st.button("Preview Certificate", use_container_width=True):
                     st.info("Certificate preview - PDF viewer would go here")
 
             with col2:
-                extract_button = st.button("Extract Data", width="stretch")
+                extract_button = st.button("Extract Data", use_container_width=True)
                 if extract_button:
                     if not openai_api_key:
                         st.error("❌ OpenAI API key required for extraction")
@@ -1961,7 +1961,7 @@ def main():
                                 st.error("❌ Failed to extract certificate data")
 
             with col3:
-                save_button = st.button("Save to Database", width="stretch")
+                save_button = st.button("Save to Database", use_container_width=True)
                 if save_button:
                     # Use extracted data if available, otherwise extract now
                     if 'extracted_cert_data' in st.session_state:
@@ -2042,7 +2042,7 @@ def main():
                                                                                        na=False)
                     ]
 
-            st.dataframe(certificates_df, width="stretch")
+            st.dataframe(certificates_df, use_container_width=True)
 
             # Export functionality
             csv_data = certificates_df.to_csv(index=False)
@@ -2051,7 +2051,7 @@ def main():
                 data=csv_data,
                 file_name=f"certificates_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv",
-                width="stretch"
+                use_container_width=True
             )
         else:
             st.info("🔭 No certificate data found. Upload and save certificates in the Certificate Manager tab.")
@@ -2084,7 +2084,7 @@ def main():
                 data=csv_data,
                 file_name=f"qa_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv",
-                width="stretch"
+                use_container_width=True
             )
         else:
             st.info("🔭 No conversation history found. Start asking questions in the 'Ask Questions' tab!")
